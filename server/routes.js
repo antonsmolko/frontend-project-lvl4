@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import HttpErrors from 'http-errors';
 
-const { Unauthorized, Conflict } = HttpErrors;
+const { Unauthorized, Conflict, NotFound } = HttpErrors;
 
 const getNextId = () => Number(_.uniqueId());
 
@@ -19,6 +19,7 @@ const buildState = (defaultState) => {
     currentChannelId: generalChannelId,
     users: [
       { id: 1, username: 'admin', password: 'admin' },
+      { id: 2, username: 'smol', password: 'secret' },
     ],
   };
 
@@ -45,6 +46,7 @@ export default (app, defaultState = {}) => {
     console.log({ 'socket.id': socket.id });
 
     socket.on('newMessage', (message, acknowledge) => {
+      console.log(message)
       const messageWithId = {
         ...message,
         id: getNextId(),
@@ -98,7 +100,7 @@ export default (app, defaultState = {}) => {
     }
 
     const token = app.jwt.sign({ userId: user.id });
-    reply.send({ token, username });
+    reply.send({ token, username, id: user.id });
   });
 
   app.post('/api/v1/signup', async (req, reply) => {
@@ -131,6 +133,36 @@ export default (app, defaultState = {}) => {
     reply
       .header('Content-Type', 'application/json; charset=utf-8')
       .send(_.omit(state, 'users'));
+  });
+
+  app.get('/api/v1/channels', { preValidation: [app.authenticate] }, (req, reply) => {
+    const { channels, currentChannelId } = state;
+
+    reply
+      .header('Content-Type', 'application/json; charset=utf-8')
+      .send({ channels, currentChannelId });
+  });
+
+  app.get('/api/v1/channels/:id/messages', { preValidation: [app.authenticate] }, (req, reply) => {
+    const { id } = req.params;
+    const messages = state.messages.filter(({ channel }) => channel === Number(id));
+
+    reply
+      .header('Content-Type', 'application/json; charset=utf-8')
+      .send(messages);
+  });
+
+  app.get('/api/v1/channels/:id/current', { preValidation: [app.authenticate] }, (req, reply) => {
+    const { id } = req.params;
+
+    if (!_.some(state.channels, ['id', Number(id)])) {
+      reply.send(new NotFound());
+      return;
+    }
+
+    reply
+      .header('Content-Type', 'application/json; charset=utf-8')
+      .send({ status: 'ok' });
   });
 
   app

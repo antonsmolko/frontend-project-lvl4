@@ -8,6 +8,7 @@ import pointOfView from 'point-of-view';
 import fastifySocketIo from 'fastify-socket.io';
 import fastifyStatic from 'fastify-static';
 import fastifyJWT from 'fastify-jwt';
+import fastifyCors from "fastify-cors";
 import HttpErrors from 'http-errors';
 
 import addRoutes from './routes.js';
@@ -44,6 +45,20 @@ const setUpStaticAssets = (app) => {
   });
 };
 
+const setUpCors = (app) => {
+  app.register(fastifyCors, {
+    origin: (origin, cb) => {
+      if(/localhost/.test(origin)){
+        //  Request from localhost will pass
+        cb(null, true)
+        return
+      }
+      // Generate an error on other origins, disabling access
+      cb(new Error("Not allowed"))
+    }
+  });
+};
+
 const setUpAuth = (app) => {
   // TODO add socket auth
   app
@@ -65,7 +80,15 @@ export default async (options) => {
   setUpAuth(app);
   setUpViews(app);
   setUpStaticAssets(app);
-  await app.register(fastifySocketIo);
+  setUpCors(app);
+  await app.register(fastifySocketIo, {
+    cors: {
+      origin: "http://localhost:5100",
+      methods: ["GET", "POST"],
+      allowedHeaders: ["Authorization"],
+      credentials: true
+    }
+  });
   addRoutes(app, options.state || {});
 
   return app;
