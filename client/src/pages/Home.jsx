@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Row, Col, Button, Nav, InputGroup } from 'react-bootstrap';
 import { Formik, Form, Field } from "formik";
@@ -10,11 +10,14 @@ const HomePage = ({ username }) => {
     const channels = useSelector((state) => state.chat.channels)
     const currentChannelId = useSelector((state) => state.chat.currentChannelId)
     const messages = useSelector((state) => state.chat.messages);
+    const messageBox = useRef(null);
+    const messageBoxContainer = useRef(null);
 
     const dispatch = useDispatch()
 
-    const getCurrentChannelMessages = (channelId) => {
-        dispatch(fetchMessagesByChannelId(channelId));
+    const getCurrentChannelMessages = async (channelId) => {
+        await dispatch(fetchMessagesByChannelId(channelId));
+        messageBox.current.scrollTo(0, messageBoxContainer.current.scrollHeight);
     }
 
     const renderChannels = () => (
@@ -52,7 +55,6 @@ const HomePage = ({ username }) => {
             if (message.channel === currentChannelId) {
                 getCurrentChannelMessages(message.channel)
             }
-            window.scrollTo(0, document.body.scrollHeight);
         });
     }, [currentChannelId])
 
@@ -84,8 +86,8 @@ const HomePage = ({ username }) => {
                             <p className="m-0"><b># general</b></p>
                             <span className="text-muted">{messages.length} сообщений</span>
                         </div>
-                        <div id="messages-box" className="chat-messages overflow-auto px-5 ">
-                            {renderMessages()}
+                        <div id="messages-box" ref={messageBox} className="chat-messages overflow-auto px-5">
+                            <div ref={messageBoxContainer}>{renderMessages()}</div>
                         </div>
                         <div className="border-top mt-auto py-3 px-5">
                             <Formik
@@ -93,25 +95,33 @@ const HomePage = ({ username }) => {
                                     message: '',
                                 }}
                                 onSubmit={async ({ message }, actions) => {
-                                    socket.emit('newMessage', {
+                                    if (!message.trim()) return
+
+                                    socket.connected && socket.emit('newMessage', {
                                         username,
                                         text: message,
                                         channel: currentChannelId,
                                     }, ({ status }) => {
                                         if (status === 'ok') {
-                                            console.log('message ok')
+                                            actions.resetForm();
                                         }
                                     });
 
-                                    actions.resetForm();
                                 }}
                             >
                                 <Form>
                                     <InputGroup>
                                         <Field
                                             name="message"
-                                            placeholder="Введите сообщение..."
-                                            className="form-control border-0"
+                                            render={({ field, form: { isSubmitting } }) => (
+                                                <input
+                                                    {...field}
+                                                    disabled={isSubmitting}
+                                                    type="text"
+                                                    placeholder="Введите сообщение..."
+                                                    className="form-control border-0"
+                                                />
+                                            )}
                                         />
                                       <ButtonSubmit/>
                                     </InputGroup>
