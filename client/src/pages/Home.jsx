@@ -9,9 +9,7 @@ import { fetchMessagesByChannelId, fetchChannels, setCurrentChannelId } from "..
 const HomePage = ({ username }) => {
     const channels = useSelector((state) => state.chat.channels)
     const currentChannelId = useSelector((state) => state.chat.currentChannelId)
-    const currentChannelMessages = useSelector((state) => (
-        state.chat.messages.filter(({ channel }) => channel === currentChannelId))
-    );
+    const messages = useSelector((state) => state.chat.messages);
 
     const dispatch = useDispatch()
 
@@ -37,7 +35,7 @@ const HomePage = ({ username }) => {
         })
     );
 
-    const renderCurrentChannelMessages = () => currentChannelMessages.map(({ id, username, text }) => (
+    const renderMessages = () => messages.map(({ id, username, text }) => (
         <div key={id} className="text-break mb-2"><b>{username}</b>: {text}</div>
     ));
 
@@ -84,10 +82,10 @@ const HomePage = ({ username }) => {
                     <div className="d-flex flex-column h-100">
                         <div className="bg-light mb-4 p-3 shadow-sm small">
                             <p className="m-0"><b># general</b></p>
-                            <span className="text-muted">{currentChannelMessages.length} сообщений</span>
+                            <span className="text-muted">{messages.length} сообщений</span>
                         </div>
                         <div id="messages-box" className="chat-messages overflow-auto px-5 ">
-                            {renderCurrentChannelMessages()}
+                            {renderMessages()}
                         </div>
                         <div className="border-top mt-auto py-3 px-5">
                             <Formik
