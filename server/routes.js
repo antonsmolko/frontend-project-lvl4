@@ -12,11 +12,11 @@ const buildState = (defaultState) => {
   const randomChannelId = getNextId();
   const state = {
     channels: [
-      { id: generalChannelId, name: 'general', removable: false },
+      { id: generalChannelId, name: 'general', removable: false, default: true },
       { id: randomChannelId, name: 'random', removable: false },
+      { id: getNextId(), name: 'develop', removable: true },
     ],
     messages: [],
-    currentChannelId: generalChannelId,
     users: [
       { id: 1, username: 'admin', password: 'admin' },
       { id: 2, username: 'smol', password: 'secret' },
@@ -28,9 +28,6 @@ const buildState = (defaultState) => {
   }
   if (defaultState.channels) {
     state.channels.push(...defaultState.channels);
-  }
-  if (defaultState.currentChannelId) {
-    state.currentChannelId = defaultState.currentChannelId;
   }
   if (defaultState.users) {
     state.users.push(...defaultState.users);
@@ -46,46 +43,62 @@ export default (app, defaultState = {}) => {
     console.log({ 'socket.id': socket.id });
 
     socket.on('newMessage', (message, acknowledge) => {
-      console.log(message)
-      const messageWithId = {
+      const newMessage = {
         ...message,
         id: getNextId(),
       };
-      state.messages.push(messageWithId);
+      state.messages.push(newMessage);
       acknowledge({ status: 'ok' });
-      app.io.emit('newMessage', messageWithId);
+      app.io.emit('newMessage', newMessage);
     });
 
     socket.on('newChannel', (channel, acknowledge) => {
-      const channelWithId = {
+      console.log('acknowledge', acknowledge)
+
+      const checkForUniqueness = !state.channels.some(({ name }) => name === channel.name)
+
+      if (!checkForUniqueness) {
+        return acknowledge({ status: 'error', errors: 'Должно быть уникальным' });
+      }
+
+      const newChannel = {
         ...channel,
         removable: true,
         id: getNextId(),
       };
 
-      state.channels.push(channelWithId);
-      acknowledge({ status: 'ok', data: channelWithId });
-      app.io.emit('newChannel', channelWithId);
+      state.channels.push(newChannel);
+      acknowledge({ status: 'ok', id: newChannel.id });
+      app.io.emit('newChannel', newChannel);
     });
 
-    socket.on('removeChannel', ({ id }, acknowledge) => {
+    socket.on('removeChannel', ({ id }) => {
       const channelId = Number(id);
       state.channels = state.channels.filter((c) => c.id !== channelId);
-      state.messages = state.messages.filter((m) => m.channelId !== channelId);
-      const data = { id: channelId };
+      state.messages = state.messages.filter((m) => m.channel !== channelId);
 
-      acknowledge({ status: 'ok' });
-      app.io.emit('removeChannel', data);
+      app.io.emit('removeChannel', channelId);
     });
 
-    socket.on('renameChannel', ({ id, name }, acknowledge) => {
-      const channelId = Number(id);
+    socket.on('renameChannel', (payload, acknowledge) => {
+      const channelId = Number(payload.id);
       const channel = state.channels.find((c) => c.id === channelId);
-      if (!channel) return;
-      channel.name = name;
 
-      acknowledge({ status: 'ok' });
-      app.io.emit('renameChannel', channel);
+      const checkForUniqueness = !state.channels.some(({ name }) => name === payload.name)
+
+      if (!checkForUniqueness) {
+        return acknowledge({ status: 'error', errors: 'Должно быть уникальным' });
+      }
+
+
+      if (!channel) return;
+
+      channel.name = payload.name;
+
+      const data = { id: channelId, changes: { name: payload.name } };
+
+      acknowledge({ status: 'ok', ...data });
+      app.io.emit('renameChannel', data);
     });
   });
 
@@ -95,8 +108,10 @@ export default (app, defaultState = {}) => {
     const user = state.users.find((u) => u.username === username);
 
     if (!user || user.password !== password) {
-      reply.send(new Unauthorized());
-      return;
+      return reply
+        .code(401)
+        .header('Content-Type', 'application/json; charset=utf-8')
+        .send({ password: 'Неправильный логин или пароль!' })
     }
 
     const token = app.jwt.sign({ userId: user.id });
@@ -109,7 +124,7 @@ export default (app, defaultState = {}) => {
     const user = state.users.find((u) => u.username === username);
 
     if (user) {
-      reply.send(new Conflict());
+      reply.send(new Conflict({ username: 'Пользователь с таким логином уже существует!' }));
       return;
     }
 
@@ -136,33 +151,31 @@ export default (app, defaultState = {}) => {
   });
 
   app.get('/api/v1/channels', { preValidation: [app.authenticate] }, (req, reply) => {
-    const { channels, currentChannelId } = state;
+    const { channels, messages } = state;
+    const { id } = channels.find((channel) => channel.default)
+    const defaultMessages = messages.filter(({ channel }) => channel === id)
 
     reply
       .header('Content-Type', 'application/json; charset=utf-8')
-      .send({ channels, currentChannelId });
+      .send({ channels, messages: defaultMessages });
   });
 
-  app.get('/api/v1/channels/:id/messages', { preValidation: [app.authenticate] }, (req, reply) => {
+  app.get('/api/v1/channels/:id', { preValidation: [app.authenticate] }, (req, reply) => {
     const { id } = req.params;
-    const messages = state.messages.filter(({ channel }) => channel === Number(id));
+    const channelId = Number(id)
 
-    reply
-      .header('Content-Type', 'application/json; charset=utf-8')
-      .send(messages);
-  });
-
-  app.get('/api/v1/channels/:id/current', { preValidation: [app.authenticate] }, (req, reply) => {
-    const { id } = req.params;
-
-    if (!_.some(state.channels, ['id', Number(id)])) {
+    if (!_.some(state.channels, ['id', channelId])) {
       reply.send(new NotFound());
       return;
     }
 
+    const channel = state.channels.find((channel) => channel.id === channelId)
+    const messages = state.messages.filter(({ channel }) => channel === channelId)
+
     reply
+      .code(200)
       .header('Content-Type', 'application/json; charset=utf-8')
-      .send({ status: 'ok' });
+      .send({ ...channel, messages });
   });
 
   app

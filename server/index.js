@@ -83,7 +83,7 @@ export default async (options) => {
   setUpCors(app);
   await app.register(fastifySocketIo, {
     cors: {
-      origin: "http://localhost:5100",
+      origin: "http://localhost:3000",
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
       credentials: true

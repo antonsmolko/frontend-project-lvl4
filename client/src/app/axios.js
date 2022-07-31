@@ -1,5 +1,5 @@
 import axios from 'axios';
-import store from '../app/store';
+import { store } from './store';
 
 const instance = axios.create({
   baseURL: 'http://0.0.0.0:5000',

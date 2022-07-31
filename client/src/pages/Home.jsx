@@ -1,138 +1,240 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Container, Row, Col, Button, Nav, InputGroup } from 'react-bootstrap';
-import { Formik, Form, Field } from "formik";
-import ButtonSubmit from "../components/form/ButtonSubmit";
+import { createSelector } from 'reselect'
+import { BsPlusSquare } from 'react-icons/bs';
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Nav,
+  InputGroup,
+  ButtonGroup,
+  Dropdown
+} from 'react-bootstrap';
+import { Formik, Form, Field } from 'formik';
+import ButtonSubmit from '../components/form/ButtonSubmit';
 import socket from '../app/socket-io';
-import { fetchMessagesByChannelId, fetchChannels, setCurrentChannelId } from "../features/chat/chatSlice";
+import {
+  fetchChannels,
+  getChannel,
+  addChannel,
+  removeChannel,
+  renameChannel
+} from '../features/channels/channelsSlice';
+import { addMessage } from '../features/messages/messagesSlice';
+import getModal from '../components/modals';
+import { store } from '../app/store';
+
+const selectCurrentChannel = createSelector(
+  (state) => state.channels,
+  ({ entities, currentChannelId }) => currentChannelId ? entities[currentChannelId] : {}
+)
 
 const HomePage = ({ username }) => {
-    const channels = useSelector((state) => state.chat.channels)
-    const currentChannelId = useSelector((state) => state.chat.currentChannelId)
-    const messages = useSelector((state) => state.chat.messages);
-    const messageBox = useRef(null);
-    const messageBoxContainer = useRef(null);
+  const channels = useSelector(({ channels }) => Object.values(channels.entities))
+  const currentChannelId = useSelector(({ channels }) => channels.currentChannelId)
+  const currentChannel = useSelector(selectCurrentChannel)
+  const messages = useSelector(({ messages }) => Object.values(messages.entities))
+  const messageBox = useRef(null);
+  const messageBoxContainer = useRef(null);
 
-    const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
-    const getCurrentChannelMessages = async (channelId) => {
-        await dispatch(fetchMessagesByChannelId(channelId));
-        messageBox.current.scrollTo(0, messageBoxContainer.current.scrollHeight);
+  const handleAddChannel = (item) => new Promise((resolve, reject) => {
+    if (!socket.connected) {
+      reject()
     }
 
-    const renderChannels = () => (
-        channels.map(({ name, id }) => {
-            const buttonVariant = id === currentChannelId ? 'secondary' : null
+    socket.emit('newChannel', item, (response) => {
+      if (response.status === 'ok') {
+        dispatch(getChannel({ id: response.id }))
+      }
 
-            return (
-                <Nav.Item key={id}>
-                    <Button
-                        variant={buttonVariant}
-                        onClick={() => dispatch(setCurrentChannelId(id))}
-                        className="w-100 px-4 rounded-0 text-start"
-                    >
-                        <span className="me-3">#</span>{name}
-                    </Button>
-                </Nav.Item>
-            );
-        })
-    );
+      resolve(response)
+    })
+  })
 
-    const renderMessages = () => messages.map(({ id, username, text }) => (
-        <div key={id} className="text-break mb-2"><b>{username}</b>: {text}</div>
-    ));
+  const handleRemoveChannel = (id) => {
+    socket.connected && socket.emit('removeChannel', { id });
+  }
 
-    useEffect(() => {
-        dispatch(fetchChannels())
-    }, [dispatch])
+  const handleRenameChannel = (item) => new Promise((resolve, reject) => {
+    if (!socket.connected) {
+      reject()
+    }
 
-    useEffect(() => {
-        if (currentChannelId) {
-            getCurrentChannelMessages(currentChannelId);
-        }
+    socket.emit('renameChannel', item, (response) => {
+      resolve(response)
+    })
+  })
 
-        socket.on('newMessage', (message) => {
-            if (message.channel === currentChannelId) {
-                getCurrentChannelMessages(message.channel)
-            }
-        });
-    }, [currentChannelId])
+  const renderModal = ({ modalInfo, hideModal, showModal }) => {
+    const mapping = {
+      adding: handleAddChannel,
+      removing: handleRemoveChannel,
+      renaming: handleRenameChannel
+    };
 
-    return (
-        <Container className="flex-grow-1 my-4 overflow-hidden rounded shadow">
-            <Row className="h-100 bg-white">
-                <Col xs={2} className="px-0 pt-5 border-end bg-light">
-                   <div className="d-flex justify-content-between mb-2 px-4">
-                      <span>Каналы</span>
-                      <button type="button" className="p-0 text-primary btn btn-group-vertical">
-                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20" fill="currentColor">
-                            <path
-                                d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
-                            />
-                            <path
-                                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"
-                            />
-                         </svg>
-                        <span className="visually-hidden">+</span>
-                      </button>
-                   </div>
-                   <Nav variant="pills" className="flex-column">
-                     {renderChannels()}
-                   </Nav>
-                </Col>
-                <Col className="p-0 h-100">
-                    <div className="d-flex flex-column h-100">
-                        <div className="bg-light mb-4 p-3 shadow-sm small">
-                            <p className="m-0"><b># general</b></p>
-                            <span className="text-muted">{messages.length} сообщений</span>
-                        </div>
-                        <div id="messages-box" ref={messageBox} className="chat-messages overflow-auto px-5">
-                            <div ref={messageBoxContainer}>{renderMessages()}</div>
-                        </div>
-                        <div className="border-top mt-auto py-3 px-5">
-                            <Formik
-                                initialValues={{
-                                    message: '',
-                                }}
-                                onSubmit={async ({ message }, actions) => {
-                                    if (!message.trim()) return
+    const { type } = modalInfo;
 
-                                    socket.connected && socket.emit('newMessage', {
-                                        username,
-                                        text: message,
-                                        channel: currentChannelId,
-                                    }, ({ status }) => {
-                                        if (status === 'ok') {
-                                            actions.resetForm();
-                                        }
-                                    });
+    if (!type || !Object.keys(mapping).includes(type)) {
+      return null;
+    }
 
-                                }}
-                            >
-                                <Form>
-                                    <InputGroup>
-                                        <Field
-                                            name="message"
-                                            render={({ field, form: { isSubmitting } }) => (
-                                                <input
-                                                    {...field}
-                                                    disabled={isSubmitting}
-                                                    type="text"
-                                                    placeholder="Введите сообщение..."
-                                                    className="form-control border-0"
-                                                />
-                                            )}
-                                        />
-                                      <ButtonSubmit/>
-                                    </InputGroup>
-                                </Form>
-                            </Formik>
-                        </div>
-                   </div>
-                </Col>
-            </Row>
-        </Container>
-    );
+    const action = mapping[type]
+
+    const Component = getModal(type);
+    return <Component modalInfo={modalInfo} show={showModal} onHide={hideModal} action={action}/>;
+  };
+
+  const renderChannels = (showModal) => (
+    channels.map(({ name, id, removable }) => {
+      const buttonVariant = id === currentChannelId ? 'secondary' : null
+
+      const buttonTitle = () => <><span className="me-2">#</span>{name}</>;
+
+      return removable
+        ? (
+          <Nav.Item key={id}>
+            <Dropdown as={ButtonGroup} className="w-100">
+              <Button
+                onClick={() => dispatch(getChannel({ id }))}
+                variant={buttonVariant}
+                className="ps-4 pe-1 rounded-0 text-start w-0"
+              >
+                <span className="d-block text-truncate">{buttonTitle()}</span>
+              </Button>
+              <Dropdown.Toggle split variant={buttonVariant} className="rounded-0 flex-grow-0 px-2"/>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => showModal('removing', { id, name })}>Удалить</Dropdown.Item>
+                <Dropdown.Item onClick={() => showModal('renaming', { id, name })}>Переименовать</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Nav.Item>
+        )
+        : (
+          <Nav.Item key={id}>
+            <Button
+              variant={buttonVariant}
+              onClick={() => dispatch(getChannel({ id }))}
+              className="w-100 px-4 rounded-0 text-start"
+            >
+              {buttonTitle()}
+            </Button>
+          </Nav.Item>
+        );
+    })
+  );
+
+  const renderMessages = () => messages.map(({ id, username, text }) => (
+    <div key={id} className="text-break mb-2"><b>{username}</b>: {text}</div>
+  ));
+
+  useEffect(() => {
+    dispatch(fetchChannels())
+  }, [dispatch])
+
+  useEffect(() => {
+    socket.on('newMessage', (message) => {
+      console.log('newMessage on')
+      if (message.channel === currentChannel.id) {
+        console.log('currentChannel.id', currentChannel.id)
+        console.log('===================================')
+        dispatch(addMessage(message))
+      } else {
+        console.log('not current channel', currentChannel.id)
+        console.log('===================================')
+      }
+    });
+
+    socket.on('newChannel', (data) => dispatch(addChannel(data)));
+    socket.on('removeChannel', async (id) => {
+      const _currentChannelId = store.getState().channels.currentChannelId
+      const _channels = Object.values(store.getState().channels.entities)
+
+      if (id === _currentChannelId) {
+        const { id } = _channels.find((channel) => channel.default)
+        await dispatch(getChannel({ id }))
+      }
+
+      dispatch(removeChannel(id))
+    });
+    socket.on('renameChannel', (data) => dispatch(renameChannel(data)));
+  }, [currentChannel, dispatch])
+
+  const [modalInfo, setModalInfo] = useState({ type: null, item: null });
+  const hideModal = () => setModalInfo({ type: null, item: null });
+  const showModal = (type, item = null) => setModalInfo({ type, item });
+  const sendNewMessage = async (message, actions) => {
+    if (!message.trim()) return
+
+    const payload = { username, text: message, channel: currentChannelId }
+
+    socket.connected && socket.emit('newMessage', payload, ({ status }) => {
+      if (status === 'ok') {
+        actions.resetForm();
+      }
+    });
+  }
+
+  return (
+    <>
+      <Container className="flex-grow-1 my-4 overflow-hidden rounded shadow">
+        <Row className="h-100 bg-white">
+          <Col xs={2} className="px-0 pt-5 border-end bg-light">
+           <div className="d-flex justify-content-between align-items-center mb-2 ps-4 pe-2">
+            <span>Каналы</span>
+            <button
+              type="button" onClick={() => showModal('adding')}
+              className="p-0 text-primary btn btn-group-vertical"
+            >
+              <BsPlusSquare/>
+            </button>
+           </div>
+           <Nav variant="pills" className="flex-column">
+             {renderChannels(showModal)}
+           </Nav>
+          </Col>
+          <Col className="p-0 h-100">
+            <div className="d-flex flex-column h-100">
+              <div className="bg-light mb-4 p-3 shadow-sm small">
+                <p className="m-0"><b># {currentChannel.name}</b></p>
+                <span className="text-muted">{messages.length} сообщений</span>
+              </div>
+              <div id="messages-box" ref={messageBox} className="chat-messages overflow-auto px-5">
+                <div ref={messageBoxContainer}>{renderMessages()}</div>
+              </div>
+              <div className="border-top mt-auto py-3 px-5">
+                <Formik
+                  initialValues={{ message: '' }}
+                  onSubmit={({ message }, actions) => sendNewMessage(message, actions)}
+                >
+                  <Form>
+                    <InputGroup>
+                      <Field name="message">
+                        {({ field, form: { isSubmitting } }) => (
+                          <input
+                            {...field}
+                            disabled={isSubmitting}
+                            type="text"
+                            placeholder="Введите сообщение..."
+                            className="form-control border-0"
+                          />
+                        )}
+                      </Field>
+                      <ButtonSubmit/>
+                    </InputGroup>
+                  </Form>
+                </Formik>
+              </div>
+           </div>
+          </Col>
+        </Row>
+      </Container>
+      {renderModal({ modalInfo, hideModal, showModal })}
+    </>
+  );
 };
 
 export default HomePage;

@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import store from "./store";
+import { store } from "./store";
 
 const getAuthHeader = () => {
   const { token } = store.getState().auth.user;

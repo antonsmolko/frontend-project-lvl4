@@ -2,13 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import chatApi from "../../api/chat";
 
-export const fetchMessagesByChannelId = createAsyncThunk(
-  'chat/fetchMessages',
-  async (channelId) => {
-    const { data } = await chatApi.getMessagesByChannelId(channelId)
-    return data;
-  }
-)
+// export const fetchMessagesByChannelId = createAsyncThunk(
+//   'chat/fetchMessages',
+//   async (channelId) => {
+//     const { data } = await chatApi.getMessagesByChannelId(channelId)
+//     return data;
+//   }
+// )
 
 export const fetchChannels = createAsyncThunk(
   'chat/fetchChannels',
@@ -31,7 +31,6 @@ export const chatSlice = createSlice({
       state.messages = [...payload];
     },
     addMessage: (state, { payload }) => {
-      console.log(payload)
       state.messages.push(payload)
     },
     setCurrentChannelId: (state, { payload }) => {
@@ -46,9 +45,9 @@ export const chatSlice = createSlice({
       state.channels = [...payload.channels];
       state.currentChannelId = payload.currentChannelId;
     })
-    builder.addCase(fetchMessagesByChannelId.fulfilled, (state, { payload}) => {
-      state.messages = [...payload];
-    })
+    // builder.addCase(fetchMessagesByChannelId.fulfilled, (state, { payload}) => {
+    //   state.messages = [...payload];
+    // })
   },
 });
 
