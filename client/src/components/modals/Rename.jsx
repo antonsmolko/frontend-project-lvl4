@@ -1,77 +1,90 @@
 import React, { useEffect, useRef } from 'react';
 import { useFormik } from 'formik';
-import { Modal, FormGroup, FormControl, Button, Form } from 'react-bootstrap';
-import _ from "lodash";
+import {
+	Modal,
+	Button,
+	Form,
+	FloatingLabel,
+} from 'react-bootstrap';
+import * as Yup from 'yup';
+import { useTranslation } from 'react-i18next';
+import { vRules, vParams } from '../../yup';
 
 const generateOnSubmit = ({ modalInfo, action, onHide }) => async (values, formikActions) => {
+	const { validateField, setErrors } = formikActions;
 
-    const { validateField, setErrors } = formikActions
+	await validateField('name');
 
-    await validateField('name')
+	const item = { id: modalInfo.item.id, name: values.name };
 
-    const item = { id: modalInfo.item.id, name: values.name }
+	const { status, errors } = await action(item);
 
-    const { status, errors } = await action(item)
+	if (status === 'error') {
+		return setErrors({ name: errors });
+	}
 
-    if (status === 'error') {
-        return setErrors({ name: errors })
-    }
-
-    onHide();
+	onHide();
 };
 
-const RenameModal = (props) => {
-    const { show, onHide, modalInfo } = props;
-    const { id, name } = modalInfo.item;
-    const f = useFormik({
-        initialValues: { id, name },
-        onSubmit: generateOnSubmit(props),
-        validate: (values) => {
-            switch (true) {
-                case !values.name:
-                    return { name: 'Обязательное поле' }
-                case !_.inRange(values.name.length, 3, 21):
-                    return { name: 'От 3 до 20 символов' }
-                default:
-                    return {}
-            }
-        },
-        validateOnMount: false,
-        validateOnChange: false,
-        validateOnBlur: false
-    });
-    const inputRef = useRef();
-    useEffect(() => {
-        inputRef.current.select();
-    }, []);
+function RenameModal(props) {
+	const { t } = useTranslation();
+	const { show, onHide, modalInfo } = props;
+	const { id, name } = modalInfo.item;
+	const f = useFormik({
+		initialValues: { id, name },
+		onSubmit: generateOnSubmit(props),
+		validateOnMount: false,
+		validateOnChange: false,
+		validateOnBlur: false,
+		validationSchema: Yup.object({
+			name: Yup.string()
+				.required()
+				.test({
+					name: 'range',
+					params: vParams.channelName.range,
+					message: t('validation.range', vParams.channelName.range),
+					test: vRules.string.range(vParams.channelName.range),
+				}),
+		}),
+	});
+	const inputRef = useRef();
+	useEffect(() => {
+		inputRef.current.select();
+	}, []);
 
-    return (
-        <Modal centered show={show} onHide={onHide}>
-            <Modal.Header closeButton>
-                <Modal.Title>Rename channel "{name}"</Modal.Title>
-            </Modal.Header>
+	return (
+		<Modal centered show={show} onHide={onHide}>
+			<Modal.Header closeButton>
+				<Modal.Title>
+					{t('modals.rename.title', { channel: modalInfo.item.name })}
+				</Modal.Title>
+			</Modal.Header>
 
-            <form onSubmit={f.handleSubmit}>
-                <Modal.Body>
-                    <FormGroup>
-                        <Form.Label>Name</Form.Label>
-                        <FormControl
-                            ref={inputRef}
-                            onChange={f.handleChange}
-                            onBlur={f.handleBlur}
-                            value={f.values.name}
-                            data-testid="input-body"
-                            name="name"
-                        />
-                        <span>{f.errors.name}</span>
-                    </FormGroup>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" type="submit">Submit</Button>
-                </Modal.Footer>
-            </form>
-        </Modal>
-    );
-};
+			<Form onSubmit={f.handleSubmit}>
+				<Modal.Body>
+					<FloatingLabel
+						controlId="name"
+						label={t('form.label.name')}
+						className="mb-3"
+					>
+						<Form.Control
+							ref={inputRef}
+							name="name"
+							onChange={f.handleChange}
+							onBlur={f.handleBlur}
+							value={f.values.name}
+							placeholder={t('form.label.name')}
+							isInvalid={f.errors.name}
+						/>
+						<span className="invalid-tooltip">{f.errors.name}</span>
+					</FloatingLabel>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="primary" type="submit">{t('actions.rename')}</Button>
+				</Modal.Footer>
+			</Form>
+		</Modal>
+	);
+}
 
 export default RenameModal;

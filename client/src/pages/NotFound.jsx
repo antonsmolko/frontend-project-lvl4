@@ -1,5 +1,12 @@
-const NotFound = () => (
-  <h1>NOT FOUND</h1>
-);
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+
+function NotFound() {
+	const { t } = useTranslation();
+
+	return (
+		<h1>{t('pages.notfound.title')}</h1>
+	);
+}
 
 export default NotFound;

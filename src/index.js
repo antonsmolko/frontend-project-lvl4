@@ -1,12 +1,12 @@
 // @ts-check
 
-import 'core-js/stable/index.js';
-import 'regenerator-runtime/runtime.js';
+import 'core-js/stable/index';
+import 'regenerator-runtime/runtime';
 
 import '../assets/application.scss';
 
 if (process.env.NODE_ENV !== 'production') {
-  localStorage.debug = 'chat:*';
+	localStorage.debug = 'chat:*';
 }
 
 const p = document.createElement('p');
@@ -28,4 +28,4 @@ card.append(cardBody);
 const container = document.querySelector('#chat');
 container.append(card);
 
-console.log('it works!');
+console.log('it works!'); // eslint-disable-line

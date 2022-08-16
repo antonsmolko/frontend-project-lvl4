@@ -3,9 +3,11 @@ import Remove from './Remove.jsx';
 import Rename from './Rename.jsx';
 
 const modals = {
-    adding: Add,
-    removing: Remove,
-    renaming: Rename,
+	adding: Add,
+	removing: Remove,
+	renaming: Rename,
 };
 
-export default (modalName) => modals[modalName];
+const getModal = (modalName) => modals[modalName];
+
+export default getModal;
