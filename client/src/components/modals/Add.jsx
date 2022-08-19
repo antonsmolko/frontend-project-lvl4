@@ -8,9 +8,10 @@ import {
 } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { vRules, vParams } from '../../yup';
 
-const generateOnSubmit = ({ onHide, action }) => async (values, formikActions) => {
+const generateOnSubmit = ({ onHide, action, successMessage, errorMessage }) => async (values, formikActions) => {
 	const { validateField, setErrors } = formikActions;
 
 	await validateField('name');
@@ -19,8 +20,11 @@ const generateOnSubmit = ({ onHide, action }) => async (values, formikActions) =
 	const { status, errors } = await action(item);
 
 	if (status === 'error') {
+		toast.error(errorMessage);
 		return setErrors({ name: errors });
 	}
+
+	toast.success(successMessage);
 
 	onHide();
 };
@@ -28,8 +32,10 @@ const generateOnSubmit = ({ onHide, action }) => async (values, formikActions) =
 function AddModal(props) {
 	const { t } = useTranslation();
 	const { show, onHide } = props;
+	const successMessage = t('toasts.channel.success.add');
+	const errorMessage = t('toasts.channel.error.add');
 	const f = useFormik({
-		onSubmit: generateOnSubmit(props),
+		onSubmit: generateOnSubmit({ ...props, successMessage, errorMessage }),
 		validateOnMount: false,
 		validateOnChange: false,
 		validateOnBlur: false,

@@ -41,6 +41,7 @@
     "pino-pretty": "^9.0.0",
     "popper.js": "^1.16.1",
     "pug": "^3.0.2",
+    "react-toastify": "^9.0.8",
     "regenerator-runtime": "^0.13.9"
   },
   "devDependencies": {

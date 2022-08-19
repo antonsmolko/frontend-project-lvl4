@@ -1,18 +1,22 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 // BEGIN
-const generateOnSubmit = ({ modalInfo, action, onHide }) => (e) => {
+const generateOnSubmit = ({ modalInfo, action, onHide, successMessage }) => (e) => {
 	e.preventDefault();
 	action(modalInfo.item.id);
+
+	toast.success(successMessage);
 	onHide();
 };
 
 function Remove(props) {
 	const { t } = useTranslation();
 	const { show, onHide, modalInfo } = props;
-	const onSubmit = generateOnSubmit(props);
+	const successMessage = t('toasts.channel.success.remove');
+	const onSubmit = generateOnSubmit({ ...props, successMessage });
 
 	return (
 		<Modal centered show={show} onHide={onHide}>

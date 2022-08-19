@@ -9,8 +9,15 @@ import {
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { vRules, vParams } from '../../yup';
+import { toast } from 'react-toastify';
 
-const generateOnSubmit = ({ modalInfo, action, onHide }) => async (values, formikActions) => {
+const generateOnSubmit = ({
+	modalInfo,
+	action,
+	onHide,
+	successMessage,
+	errorMessage
+}) => async (values, formikActions) => {
 	const { validateField, setErrors } = formikActions;
 
 	await validateField('name');
@@ -20,8 +27,11 @@ const generateOnSubmit = ({ modalInfo, action, onHide }) => async (values, formi
 	const { status, errors } = await action(item);
 
 	if (status === 'error') {
+		toast.success(errorMessage);
 		return setErrors({ name: errors });
 	}
+
+	toast.success(successMessage);
 
 	onHide();
 };
@@ -29,10 +39,12 @@ const generateOnSubmit = ({ modalInfo, action, onHide }) => async (values, formi
 function RenameModal(props) {
 	const { t } = useTranslation();
 	const { show, onHide, modalInfo } = props;
+	const successMessage = t('toasts.channel.success.rename');
+	const errorMessage = t('toasts.channel.error.rename');
 	const { id, name } = modalInfo.item;
 	const f = useFormik({
 		initialValues: { id, name },
-		onSubmit: generateOnSubmit(props),
+		onSubmit: generateOnSubmit({ ...props, successMessage, errorMessage }),
 		validateOnMount: false,
 		validateOnChange: false,
 		validateOnBlur: false,
