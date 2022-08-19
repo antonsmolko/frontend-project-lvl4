@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { Formik, Form, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
+import filter from 'leo-profanity';
 import ButtonSubmit from '../components/form/ButtonSubmit.jsx';
 import socket from '../app/socket-io';
 import {
@@ -187,7 +188,10 @@ function HomePage({ username }) {
 	const sendNewMessage = async (message, actions) => {
 		if (!message.trim()) return;
 
-		const payload = { username, text: message, channel: currentChannelId };
+		filter.loadDictionary('ru');
+		const text = filter.clean(message);
+
+		const payload = { username, text, channel: currentChannelId };
 
 		socket.connected && socket.emit('newMessage', payload, ({ status }) => {
 			if (status === 'ok') {
