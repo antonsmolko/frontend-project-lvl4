@@ -12,21 +12,19 @@ import {
 	FloatingLabel,
 } from 'react-bootstrap';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 
 import image from '../assets/images/login.jpg';
 
 import * as Yup from 'yup';
-import { login } from '../features/auth/authSlice';
-import authApi from '../api/auth';
 import { vRules, vParams } from '../yup';
+import { useAuth } from '../hooks';
 
 function LoginPage() {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const navigate = useNavigate();
 	const prevPath = location.state ? location.state.from.pathname : '/';
-	const dispatch = useDispatch();
+	const { login } = useAuth();
 
 	const f = useFormik({
 		initialValues: {
@@ -36,15 +34,14 @@ function LoginPage() {
 		validateOnMount: false,
 		validateOnChange: false,
 		validateOnBlur: false,
-		onSubmit: async (credentials, formikActions) => {
+		onSubmit: async (payload, formikActions) => {
 			const { setErrors } = formikActions;
 
 			try {
-				const { data } = await authApi.login(credentials);
-				dispatch(login(data));
+				await login(payload);
 				navigate(prevPath);
 			} catch (error) {
-				setErrors(error.response.data);
+				setErrors(error);
 			}
 		},
 		validationSchema: Yup.object({

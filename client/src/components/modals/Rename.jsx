@@ -27,12 +27,11 @@ const generateOnSubmit = ({
 	const { status, errors } = await action(item);
 
 	if (status === 'error') {
-		toast.success(errorMessage);
-		return setErrors({ name: errors });
+		toast.error(errorMessage);
+		return setErrors(errors);
 	}
 
 	toast.success(successMessage);
-
 	onHide();
 };
 
@@ -59,7 +58,8 @@ function RenameModal(props) {
 				}),
 		}),
 	});
-	const inputRef = useRef();
+	const inputRef = useRef(null);
+
 	useEffect(() => {
 		inputRef.current.select();
 	}, []);

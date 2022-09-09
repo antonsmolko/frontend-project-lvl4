@@ -10,13 +10,22 @@ import fastifyStatic from '@fastify/static';
 import fastifyJWT from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
 import HttpErrors from 'http-errors';
+import i18n from 'i18next';
+import { JSONFile } from 'lowdb';
+import LowWithLodash from './db/LowWithLodash.js';
 
 import addRoutes from './routes.js'; // eslint-disable-line
+import addSocket from './socket/index.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Connect Database
+const file = path.join(__dirname, './db/db.json');
+const adapter = new JSONFile(file);
+const db = new LowWithLodash(adapter);
+await db.read();
 
 const { Unauthorized } = HttpErrors;
-
-const __filename = fileURLToPath(import.meta.url); // eslint-disable-line no-underscore-dangle
-const __dirname = path.dirname(__filename); // eslint-disable-line no-underscore-dangle
 
 const isProduction = process.env.NODE_ENV === 'production';
 const appPath = path.join(__dirname, '..');
@@ -52,7 +61,7 @@ const setUpCors = (app) => {
 				return;
 			}
 			// Generate an error on other origins, disabling access
-			cb(new Error('Not allowed'));
+			cb(new Error(i18n.t('errors.notAllowed')));
 		},
 	});
 };
@@ -72,7 +81,7 @@ const setUpAuth = (app) => {
 		});
 };
 
-const server = async (options) => {
+const server = async () => {
 	const app = fastify({ logger: true });
 
 	setUpAuth(app);
@@ -87,7 +96,8 @@ const server = async (options) => {
 			credentials: true,
 		},
 	});
-	addRoutes(app, options.state || {});
+	addSocket(app, db);
+	addRoutes(app, db);
 
 	return app;
 };

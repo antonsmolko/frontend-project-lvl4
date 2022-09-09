@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import image from '../../assets/images/send.svg';
+import image from '../../../assets/images/send.svg';
 
 function ButtonSubmit() {
 	const { t } = useTranslation();

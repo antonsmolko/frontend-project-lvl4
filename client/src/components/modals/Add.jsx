@@ -16,8 +16,7 @@ const generateOnSubmit = ({ onHide, action, successMessage, errorMessage }) => a
 
 	await validateField('name');
 
-	const item = { name: values.name };
-	const { status, errors } = await action(item);
+	const { status, errors } = await action(values.name);
 
 	if (status === 'error') {
 		toast.error(errorMessage);
@@ -25,7 +24,6 @@ const generateOnSubmit = ({ onHide, action, successMessage, errorMessage }) => a
 	}
 
 	toast.success(successMessage);
-
 	onHide();
 };
 
@@ -52,7 +50,8 @@ function AddModal(props) {
 		}),
 	});
 
-	const inputRef = useRef();
+	const inputRef = useRef(null);
+
 	useEffect(() => {
 		inputRef.current.focus();
 	}, []);

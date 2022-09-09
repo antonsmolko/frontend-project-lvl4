@@ -1,30 +1,53 @@
-import { createSlice } from '@reduxjs/toolkit';
-import _ from 'lodash';
-import lsApi from '../../api/localStorage';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import authApi from '../../api/auth';
+
+export const login = createAsyncThunk(
+	'auth/login',
+	async (payload, { rejectWithValue }) => {
+		try {
+			const { data } = await authApi.login(payload);
+			return data;
+		} catch ({ response }) {
+			if (response.status !== 401) return;
+			return rejectWithValue(response.data);
+		}
+	},
+);
+
+export const signup = createAsyncThunk(
+	'auth/signup',
+	async (payload,{ rejectWithValue }) => {
+		try {
+			const { data } = await authApi.signup(payload);
+			return data;
+		} catch ({ response }) {
+			if (![422, 409].includes(response.status)) return;
+			return rejectWithValue(response.data);
+		}
+	},
+);
+
+const setState = (state, { payload = {} } = {}) => {
+	state.user = payload;
+	state.loggedIn = !!payload.token;
+};
 
 export const authSlice = createSlice({
 	name: 'auth',
 	initialState: {
-		user: lsApi.getItem('user') || {},
-		loggedIn: Boolean(_.get(lsApi.getItem('user'), 'token')),
+		user: {},
+		loggedIn: false
 	},
 	reducers: {
-		login: (state, { payload }) => {
-			state.user = payload;
-			lsApi.setItem('user', payload);
-			state.loggedIn = Boolean(payload.token);
-		},
-		logout: (state) => {
-			lsApi.setItem('user', {});
-			state.loggedIn = false;
-			state.user = {};
-		},
+		fetchUser: setState,
+		logout: setState,
+	},
+	extraReducers: (builder) => {
+		builder.addCase(login.fulfilled, setState);
+		builder.addCase(signup.fulfilled, setState);
 	},
 });
 
-export const {
-	logout,
-	login,
-} = authSlice.actions;
+export const { logout, fetchUser } = authSlice.actions;
 
 export default authSlice.reducer;

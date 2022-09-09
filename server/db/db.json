@@ -1,0 +1,365 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin"
+    },
+    {
+      "id": 2,
+      "username": "smol",
+      "password": "secret"
+    },
+    {
+      "id": "7yRDSqON",
+      "username": "anton",
+      "password": "anton"
+    },
+    {
+      "id": "Y11pBRXt",
+      "username": "anthony",
+      "password": "nnnnnn"
+    },
+    {
+      "id": "2PTWBoJn",
+      "username": "anthony1",
+      "password": "nnnnnn"
+    }
+  ],
+  "channels": [
+    {
+      "id": "2cd9UQhn",
+      "name": "general",
+      "removable": false,
+      "default": true
+    },
+    {
+      "id": "SU-faRWz",
+      "name": "random",
+      "removable": false,
+      "default": false
+    },
+    {
+      "id": "sJN4Wejl",
+      "name": "develop",
+      "removable": false,
+      "default": false
+    },
+    {
+      "id": "X6YbPCyg",
+      "name": "asd",
+      "createdAt": "2022-09-04T21:05:02.745Z",
+      "removable": true,
+      "default": false,
+      "updatedAt": "2022-09-04T21:05:25.569Z"
+    },
+    {
+      "id": "BayTZtl3",
+      "name": "sdf adfds fsdfsf",
+      "createdAt": "2022-09-08T19:20:19.320Z",
+      "removable": true,
+      "default": false
+    }
+  ],
+  "messages": [
+    {
+      "id": "-_fohtXK",
+      "createdAt": "2022-08-29T17:26:36.345Z",
+      "username": "smol",
+      "text": "as fads fads s",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "B3Qq7McM",
+      "createdAt": "2022-08-29T17:26:40.546Z",
+      "username": "admin",
+      "text": " asdf sadf asdf s",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "DrbEZ2VK",
+      "createdAt": "2022-08-29T17:26:46.580Z",
+      "username": "smol",
+      "text": " asdf as fâs fasdf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "gmV41Dlm",
+      "createdAt": "2022-08-29T17:26:56.433Z",
+      "username": "smol",
+      "text": " asdf sa fasf safd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "ltUBtdgv",
+      "createdAt": "2022-08-29T17:27:01.953Z",
+      "username": "admin",
+      "text": " asd fas fasdfasf",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "Gc_aSxkc",
+      "createdAt": "2022-08-29T17:27:10.044Z",
+      "username": "smol",
+      "text": " asd sf asf asfsaf s",
+      "channel": "SU-faRWz"
+    },
+    {
+      "id": "xUqX30JH",
+      "createdAt": "2022-08-29T17:27:15.070Z",
+      "username": "admin",
+      "text": " asdfasdf saf safasf ",
+      "channel": "SU-faRWz"
+    },
+    {
+      "id": "QO6c2dcX",
+      "createdAt": "2022-08-29T21:17:24.851Z",
+      "username": "admin",
+      "text": "as dfasd fasdf ",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "wkYlggi5",
+      "createdAt": "2022-08-29T21:17:29.374Z",
+      "username": "admin",
+      "text": "a sdfas fasdf s",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "3S41fQvK",
+      "createdAt": "2022-08-31T20:28:11.806Z",
+      "username": "admin",
+      "text": " asdfasd fas faf",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "6196NWuW",
+      "createdAt": "2022-08-31T20:28:34.811Z",
+      "username": "smol",
+      "text": " asdfasdf asdf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "2Htxt7ym",
+      "createdAt": "2022-08-31T20:28:46.624Z",
+      "username": "smol",
+      "text": "a sdfasfasf asf s",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "99-dDfnC",
+      "createdAt": "2022-08-31T21:28:53.597Z",
+      "username": "admin",
+      "text": "a fasfs fsdfa",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "_Ay3Lw9a",
+      "createdAt": "2022-08-31T21:28:58.437Z",
+      "username": "admin",
+      "text": " asd fsdf asdf",
+      "channel": "SU-faRWz"
+    },
+    {
+      "id": "_f_QUzjH",
+      "createdAt": "2022-09-04T15:18:37.835Z",
+      "username": "admin",
+      "text": "sdfsd sad fd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "r-TmaHJr",
+      "createdAt": "2022-09-04T15:18:37.836Z",
+      "username": "admin",
+      "text": "sdfsd sad fd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "VEJuXLRX",
+      "createdAt": "2022-09-04T18:41:18.332Z",
+      "username": "admin",
+      "text": "a sdf asdfas fasd fas f",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "x0nOclED",
+      "createdAt": "2022-09-04T20:49:14.239Z",
+      "username": "admin",
+      "text": "fasfsf sf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "sqo1Ov9O",
+      "createdAt": "2022-09-04T20:49:47.787Z",
+      "username": "admin",
+      "text": "ad fasf sf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "vYJzjcde",
+      "createdAt": "2022-09-04T20:51:52.979Z",
+      "username": "admin",
+      "text": "asd fasasf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "W9940Bpo",
+      "createdAt": "2022-09-04T20:51:58.761Z",
+      "username": "admin",
+      "text": " asfaf sfsdf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "SlkWze0r",
+      "createdAt": "2022-09-04T20:52:03.171Z",
+      "username": "admin",
+      "text": " adfaf sf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "R_TRhRKg",
+      "createdAt": "2022-09-04T20:53:42.499Z",
+      "username": "admin",
+      "text": "af as sdfsfs",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "Ju9AIE-h",
+      "createdAt": "2022-09-04T20:53:45.006Z",
+      "username": "admin",
+      "text": "ad fsdfsfasfsdf asdf sdf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "MF_Ft8_n",
+      "createdAt": "2022-09-04T20:53:46.726Z",
+      "username": "admin",
+      "text": "a asdf sdfsdf asf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "473CWB-H",
+      "createdAt": "2022-09-04T20:58:13.955Z",
+      "username": "smol",
+      "text": "a dfasfsf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "kzHHC5xm",
+      "createdAt": "2022-09-04T20:58:18.268Z",
+      "username": "smol",
+      "text": "a dfasf sfsd",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "7u5rceDo",
+      "createdAt": "2022-09-04T20:58:20.639Z",
+      "username": "smol",
+      "text": " af d adsl sadf asdf",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "Vm_sjrBL",
+      "createdAt": "2022-09-04T20:58:26.890Z",
+      "username": "admin",
+      "text": "a sadfsdfsa fd",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "ydVwml71",
+      "createdAt": "2022-09-04T20:58:31.749Z",
+      "username": "admin",
+      "text": " adfasdf asdfsfd",
+      "channel": "sJN4Wejl"
+    },
+    {
+      "id": "8oBVryAt",
+      "createdAt": "2022-09-04T20:58:34.406Z",
+      "username": "smol",
+      "text": " adfsf sad sad sdf",
+      "channel": "SU-faRWz"
+    },
+    {
+      "id": "-KT86dUF",
+      "createdAt": "2022-09-04T21:05:38.713Z",
+      "username": "admin",
+      "text": "adfdasfsdf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "xijnuMjW",
+      "createdAt": "2022-09-08T19:13:44.151Z",
+      "text": "asdfadf asfs",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "mYNAfQ90",
+      "createdAt": "2022-09-08T19:13:50.023Z",
+      "text": "a fsdfasf asfs fsf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "BFw611vx",
+      "createdAt": "2022-09-08T19:19:20.664Z",
+      "username": "anton",
+      "text": "as dfasfasdfd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "PxUQ0m12",
+      "createdAt": "2022-09-08T19:19:22.415Z",
+      "username": "anton",
+      "text": "as fasdfasdfsd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "L_oESyXg",
+      "createdAt": "2022-09-08T19:19:24.108Z",
+      "username": "anton",
+      "text": "as fasdfasdfsda sdfasdfasdfs",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "kAEFK7J3",
+      "createdAt": "2022-09-08T19:19:26.334Z",
+      "username": "anton",
+      "text": "as fasd fasfsf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "n5_xwoye",
+      "createdAt": "2022-09-08T19:19:28.347Z",
+      "username": "anton",
+      "text": " asdfasdf asfasdf asdfsd",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "F5oUW3iA",
+      "createdAt": "2022-09-08T19:19:37.179Z",
+      "username": "anton",
+      "text": "a sdfasdfasdfasf",
+      "channel": "SU-faRWz"
+    },
+    {
+      "id": "gE72gt3m",
+      "createdAt": "2022-09-08T20:09:06.972Z",
+      "username": "anthony",
+      "text": "afasfsf ",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "EN6FxBye",
+      "createdAt": "2022-09-08T20:09:08.334Z",
+      "username": "anthony",
+      "text": "a fas fasfsf",
+      "channel": "2cd9UQhn"
+    },
+    {
+      "id": "X_V7s7h0",
+      "createdAt": "2022-09-08T21:09:30.834Z",
+      "username": "anthony1",
+      "text": "asdf sdf ",
+      "channel": "2cd9UQhn"
+    }
+  ]
+}

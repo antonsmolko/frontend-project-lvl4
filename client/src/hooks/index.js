@@ -1,6 +1,4 @@
-import { useContext } from 'react';
-import authContext from '../contexts';
-
-const useAuth = () => useContext(authContext);
-
-export default useAuth;
+export { useAuth } from './useAuth';
+export { useChat } from './useChat';
+export { useChatRoom } from './useChatRoom';
+export { useLocalStorage } from './useLocalStorage';

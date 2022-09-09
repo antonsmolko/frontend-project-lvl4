@@ -1,5 +1,4 @@
 import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import React, { useEffect, useRef } from 'react';
@@ -13,16 +12,15 @@ import {
 	Row,
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import authApi from '../api/auth';
-import { login } from '../features/auth/authSlice';
 
 import image from '../assets/images/registration.jpg';
 import { vRules, vParams } from '../yup';
+import { useAuth } from '../hooks';
 
 function SignUpPage() {
 	const { t } = useTranslation();
-	const dispatch = useDispatch();
 	const navigate = useNavigate();
+	const { signup } = useAuth();
 
 	const f = useFormik({
 		initialValues: {
@@ -37,11 +35,10 @@ function SignUpPage() {
 			const { setErrors } = formikActions;
 
 			try {
-				const { data } = await authApi.signup(payload);
-				dispatch(login(data));
+				await signup(payload);
 				navigate('/', { replace: true });
 			} catch (error) {
-				setErrors(error.response.data);
+				setErrors(error);
 			}
 		},
 		validationSchema: Yup.object({
@@ -54,7 +51,9 @@ function SignUpPage() {
 					message: t('validation.range', vParams.username.range),
 					test: vRules.string.range(vParams.username.range),
 				}),
-			password: Yup.string().required(),
+			password: Yup.string()
+				.required()
+				.min(6),
 			passwordConfirmation: Yup.string()
 				.oneOf([Yup.ref('password'), null], t('validation.passwordConfirmation')),
 		}),

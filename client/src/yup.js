@@ -10,9 +10,13 @@ setLocale({
 	},
 	// use functions to generate an error object that includes the value from the schema
 	number: {
-		min: ({ min }) => ({ key: 'validation.length.min', values: { min } }),
-		max: ({ max }) => ({ key: 'validation.length.max', values: { max } }),
+		min: (value) => t('validation.number.min', value),
+		max: (value) => t('validation.number.max', value),
 	},
+	string: {
+		min: (value) => t('validation.string.min', value),
+		max: (value) => t('validation.string.max', value),
+	}
 });
 
 export const vRules = {
@@ -26,7 +30,7 @@ export const vRules = {
 
 export const vParams = {
 	username: {
-		range: { min: 2, max: 20 },
+		range: { min: 3, max: 20 },
 	},
 	channelName: {
 		range: { min: 3, max: 20 },
